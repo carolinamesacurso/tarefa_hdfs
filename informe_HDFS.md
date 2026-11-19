@@ -236,4 +236,10 @@ e5/modificado.csv       MD5-of-32768MD5-of-512CRC32C    000002000000000000008000
     * Si necesitasemos recuperar ese fichero no podría ser por hdfs se tendría que subir el fichero desde ña fuente original
 
 *  Pregunta 5:
-    * Los resumenes en HDFS tienen el papel de comprobar que no se ha corrompido ningún dato 
+    * Copias
+        * En HDFS permite recuperar los bloques si falla algún datanode ,ya que existe una copia de estos en otro nodo
+        * En garage sirve para poder seguir accediendo a esos datos si una de las zonas falla, ya que cada copia de una zona está en otra distinta
+    
+    * Resumenes
+        * En HDFS tienen el papel de comprobar que no se ha corrompido ningún dato comparandolo con el original
+        * En garage permite verificar cuando una copia es correcta comparando su contenido con el propio resumen, si no es correcta se reemplaza con una correcta.
