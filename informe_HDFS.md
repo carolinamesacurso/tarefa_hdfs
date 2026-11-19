@@ -3,7 +3,7 @@
 
 ## Paso 1 . Contorno
 
-* El tañamo de bloque (en MB) sería de 128 MB
+* El tamaño de bloque (en MB) sería de 128 MB
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs getconf -confKey dfs.blocksize
 134217728
@@ -36,7 +36,6 @@
 [xuedua076@cdh61-login5 ~]$ hdfs dfs -ls
 Found 1 items
 drwxr-xr-x   - xuedua076 xunta          0 2026-11-18 21:15 e5
-[xuedua076@cdh61-login5 ~]$
 ```
 
 * El clúster tiene una capacidad de 2.5p y actualmente tiene un 283.2 T ocupado (2.2P de espacio libre)
@@ -51,7 +50,7 @@ hdfs://nameservice1  2.5 P  283.2 T      2.2 P   11%
 * Cantidad de bloques en cada fichero 
     * En el caso de historico_def al tener la configuración por defecto cada bloque sería de 128 MB teniendo como resultado 1 solo bloque , esto debido a que el fichero ocupa solo 64 MB
     * Pero en el csv llamado historico_16m se ha creado con bloques de 16 MB cada uno , debido a esto dividiremos esa información en varios bloques (4 de 128 MB y el último ocupando 61 bytes)
-         * Esto ya que 67108925 x 128/134217728 no son 64 MB exactos (Si 134.217.728 bytes son 128 MB, entonces 67.108.925 bytes son), sobrarían 0,0000581741333 MB los cuales al pasarlos a bytes mutiplicandolos por (x1024x1024) serían 61 bytes
+         * Esto ya que 67108925 x 128/134217728 no son 64 MB exactos (Si 134.217.728 bytes son 128 MB, entonces 67.108.925 bytes son), sobrarían 0,0000581741333 MB los cuales al pasarlos a bytes multiplicándolos por (x1024x1024) serían 61 bytes
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs dfs -stat "%n · %b bytes · bloque %o · replicación %r" e5/*
 historico_16m.csv ?? 67108925 bytes ?? bloque 16777216 ?? replicaci??n 3
@@ -89,7 +88,7 @@ Status: HEALTHY
 Replication 2 set: e5/historico_16m.csv
 ```
 * Cambios en fsck 
-    * En la sálida donde nos muestra los bytes y diferentes datos ahora nos muestra un replicated de replication=2
+    * En la salida donde nos muestra los bytes y diferentes datos ahora nos muestra un replicated de replication=2
     * Al mostrar en que datanodes tienen las réplicas cada bloque ,encontramos que ahora solo se encuentran en 2 datanodes. Por ejemplo en el blk_1088363506_14657524 en vez de mostrar 3,13 y 14 solo muestra 3 y 14
     * Nos muestra que ahora la media de copias guardadas por bloque en ese csv son 2 ( Average block replication:2.0)
     * Ahora el segundo fichero ocupa 128.0 M con sus réplicas, ya que se ha reducido el factor de replicación (64x2)
@@ -127,7 +126,7 @@ Replication 2 set: e5/historico_16m.csv
 ## Paso 4 . Sumas de verificaciones
 
 * Apartado 1 
-    * Los resumenes son diferentes ya que el calculo depende del tamaño bloque , en uno está dividido en bloques de 16 MB y en otro de 128 MB 
+    * Los resumenes son diferentes ya que el cálculo depende del tamaño bloque , en uno está dividido en bloques de 16 MB y en otro de 128 MB 
     * Significado de cada número :
         * CRC32C cada 512 B
         * 32768MD5 : número de sumas CRC32C que caben en un  bloque de 16 MB
@@ -138,8 +137,8 @@ e5/historico_16m.csv    MD5-of-32768MD5-of-512CRC32C    000002000000000000008000
 e5/historico_def.csv    MD5-of-0MD5-of-512CRC32C        000002000000000000000000b349a5b4908740c0dfa3a87336a9846b
 ```
 * Apartado 2
-    * Al realizar la comparación del resumen con el modo para no depender del tamaño del bloques se nos muestra el mismo resumen , ya que tienen el mismo contenido 
-    * Permite verificar que aunque se hayan guardado con diferentes tamaños de bloques siguen teniendo el mismo contenido y no se ha perdido ni corrompido ningun dato .
+    * Al realizar la comparación del resumen con el modo para no depender del tamaño del bloque se nos muestra el mismo resumen , ya que tienen el mismo contenido .
+    * Permite verificar que aunque se hayan guardado con diferentes tamaños de bloques siguen teniendo el mismo contenido y no se ha perdido ni corrompido ningún dato .
 ```
 [xuedua076@cdh61-login5 ~]$ hdfs dfs -Ddfs.checksum.combine.mode=COMPOSITE_CRC -checksum e5/historico_16m.csv e5/historico_def.csv
 e5/historico_16m.csv    COMPOSITE-CRC32C        5f0623f9
@@ -192,7 +191,7 @@ e5/modificado.csv       MD5-of-32768MD5-of-512CRC32C    000002000000000000008000
 *  Pregunta 2:
     * Al escribir un bloque lo comprueba el último datanode de la canalización
     * Al leer el cliente , que recalcula los CRC y los compara
-    * Cuando nadie lee lo comprueba cada datanode con su block scanner que lee los bloques periodicamente
+    * Cuando nadie lee lo comprueba cada datanode con su block scanner que lee los bloques periódicamente
 
 *  Pregunta 3:
     1. Al detectarse una réplica corrupta debido a la suma de la verificación ,se avisa al namenode que la marque como tal
@@ -202,13 +201,13 @@ e5/modificado.csv       MD5-of-32768MD5-of-512CRC32C    000002000000000000008000
     
 *  Pregunta 4:
     * Cuando todas las réplicas están corruptas fsck mostra CORRUPT y se pierde ese bloque y dejan de existir copias disponibles
-    * Si necesitasemos recuperar ese fichero no podría ser por hdfs se tendría que subir el fichero desde ña fuente original
+    * Si necesitamos recuperar ese fichero no podría ser por hdfs ,se tendría que subir el fichero desde la fuente original
 
 *  Pregunta 5:
     * Copias
         * En HDFS permite recuperar los bloques si falla algún datanode ,ya que existe una copia de estos en otro nodo
         * En garage sirve para poder seguir accediendo a esos datos si una de las zonas falla, ya que cada copia de una zona está en otra distinta
     
-    * Resumenes
-        * En HDFS tienen el papel de comprobar que no se ha corrompido ningún dato comparandolo con el original
+    * Resúmenes
+        * En HDFS tienen el papel de comprobar que no se ha corrompido ningún dato comparándolo con el original.
         * En garage permite verificar cuando una copia es correcta comparando su contenido con el propio resumen, si no es correcta se reemplaza con una correcta.
