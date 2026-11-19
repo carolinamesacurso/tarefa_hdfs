@@ -1,29 +1,5 @@
 
-# Tarea HDFS
-
-## Preparar material
-
-```
-carolinamesamartine@026P230B:~$ cp -r "/mnt/c/Users/carolina.mesamartine/Desktop/BD/xera_historico.py" .
-carolinamesamartine@026P230B:~$ ls
-D5_lonxa        code2       mongoej              obradoiro_redis              ragejemplos         xera_historico.py
-E4_concellos    concellos   mongotarea           obradoirogithubissue         reservas_albergues  ximnasio
-Escritorio      env_backup  notas                plantilla                    salesCodificacion
-agenteArchivos  festival    notasPruebas         proyecto_pruebaagentenotas1  tempo
-agentecontexto  garage      notasejemplo         pruebaProyectoNotas          tempo2
-code            jokes       obradoiroCassanadra  ragTarea                     voluntariado
-
-carolinamesamartine@026P230B:~$ scp xera_historico.py xuedua076@hadoop.cesga.es:
-** WARNING: connection is not using a post-quantum key exchange algorithm.
-** This session may be vulnerable to "store now, decrypt later" attacks.
-** The server may need to be upgraded. See https://openssh.com/pq.html
-xuedua076@hadoop.cesga.es's password:
-xera_historico.py                                                                     100% 2097    68.8KB/s   00:00     
-
-
-[xuedua076@cdh61-login1 ~]$ python xera_historico.py --mb 64 --saida reservas_historico.csv
-reservas_historico.csv: 64.0 MB, 1659576 reservas
-```
+# Tarea HDFS Carolina Mesa Martínez
 
 ## Paso 1 . Contorno
 
