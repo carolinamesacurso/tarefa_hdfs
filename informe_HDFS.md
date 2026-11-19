@@ -25,7 +25,7 @@
 134217728/512= 262144 sumas de verificación
 ```
 
-* Carpeta personal por defecto en HDFS es :
+* Carpeta personal por defecto en HDFS es hdfs://nameservice1/user/xuedua076:
 
 ```
 [xuedua076@cdh61-login4 ~]$ hdfs dfs -ls
