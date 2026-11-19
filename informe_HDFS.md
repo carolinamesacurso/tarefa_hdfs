@@ -9,13 +9,13 @@
 134217728
 ```
 
-* Replicación
+* Tenemos una replicación de 3 
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs getconf -confKey dfs.replication
 3
 ```
 
-* Bytes por cada suma de verificación
+* 512 bytes por cada suma de verificación
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs getconf -confKey dfs.bytes-per-checksum
 512
@@ -25,7 +25,13 @@
 134217728/512= 262144 sumas de verificación
 ```
 
-* Carpeta personal en HDFS, la cual es 'e5' (volver a hacer una vez acabado)
+* Carpeta personal por defecto en HDFS es :
+
+```
+[xuedua076@cdh61-login4 ~]$ hdfs dfs -ls
+```
+
+* Mostramos el mismo comando después de crear la carpeta e5 para confirmar el nombre
 ```
 [xuedua076@cdh61-login5 ~]$ hdfs dfs -ls
 Found 1 items
@@ -33,7 +39,7 @@ drwxr-xr-x   - xuedua076 xunta          0 2026-11-18 21:15 e5
 [xuedua076@cdh61-login5 ~]$
 ```
 
-* El clúster tiene una capacida de 2.5p y actualmente tiene un 11% ocupado (2.2P de espacio libre)
+* El clúster tiene una capacidad de 2.5p y actualmente tiene un 283.2 T ocupado (2.2P de espacio libre)
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs dfs -df -h
 Filesystem            Size     Used  Available  Use%
@@ -61,14 +67,14 @@ historico_def.csv ?? 67108925 bytes ?? bloque 134217728 ?? replicaci??n 3
 
 ```
 
-* En el resúmen de fsck nos muestra que en el clúster tenemos 14 datanodes
+* En el resúmen de fsck nos muestra que en el clúster tiene 14 datanodes
 
 ```
 Status: HEALTHY
  Number of data-nodes:  14
 ```
 
-* La primera cifra nos muetsra el tamaño real del fichero y la segundo indica lo que ocupa con sus réplicas 64x3 (RF3)
+* La primera cifra nos muestra el tamaño real del fichero y la segunda indica lo que ocupa con sus réplicas 64x3(RF3)
 
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs dfs -du -h e5
@@ -84,8 +90,9 @@ Replication 2 set: e5/historico_16m.csv
 ```
 * Cambios en fsck 
     * En la sálida donde nos muestra los bytes y diferentes datos ahora nos muestra un replicated de replication=2
-    * Al mostrar en que datanodes tienen las réplicas cada bloque ,encontramos que ahora solo se encuentran en 2 datanodes. Por ejemplo en el blk_1088363506_14657524 ahora solo en vez de mostrar 3,13 y 14 solo muestra 3 y 14
-    * Nos muestra que ahora la media de copias guardadas por blqoue son 2 ( Average block replication:2.0)
+    * Al mostrar en que datanodes tienen las réplicas cada bloque ,encontramos que ahora solo se encuentran en 2 datanodes. Por ejemplo en el blk_1088363506_14657524 en vez de mostrar 3,13 y 14 solo muestra 3 y 14
+    * Nos muestra que ahora la media de copias guardadas por bloque en ese csv son 2 ( Average block replication:2.0)
+    * Ahora el segundo fichero ocupa 128.0 M con sus réplicas, ya que se ha reducido el factor de replicación (64x2)
 
 ```
 [xuedua076@cdh61-login1 ~]$ hdfs fsck /user/xuedua076/e5/historico_16m.csv -files -blocks -locations
@@ -99,6 +106,14 @@ Replication 2 set: e5/historico_16m.csv
 
  Average block replication:     2.0
 ```
+
+```
+[xuedua076@cdh61-login4 ~]$ hdfs dfs -du -h e5
+64.0 M  128.0 M  e5/historico_16m.csv
+64.0 M  192.0 M  e5/historico_def.csv
+```
+
+
  * Fsck después de pedir más copias que datanodes
     * Para cada uno de los bloques ya nos muestra los datanodes ,si no un mensaje que nos indica que no tiene suficientes nodos para hacer la réplica 15 ,ya que no pueden repetirse datanodes en el mismo bloque 
     * under-replicated nos indica que tiene menos copias activas que las que tiene configuradas
@@ -123,7 +138,7 @@ e5/historico_16m.csv    MD5-of-32768MD5-of-512CRC32C    000002000000000000008000
 e5/historico_def.csv    MD5-of-0MD5-of-512CRC32C        000002000000000000000000b349a5b4908740c0dfa3a87336a9846b
 ```
 * Apartado 2
-    * Al realizar la comparación del resumen con el modo para no depender del tamaño del bloques se nos muestar el mismo resumen , ya que tienen el mismo contenido 
+    * Al realizar la comparación del resumen con el modo para no depender del tamaño del bloques se nos muestra el mismo resumen , ya que tienen el mismo contenido 
     * Permite verificar que aunque se hayan guardado con diferentes tamaños de bloques siguen teniendo el mismo contenido y no se ha perdido ni corrompido ningun dato .
 ```
 [xuedua076@cdh61-login5 ~]$ hdfs dfs -Ddfs.checksum.combine.mode=COMPOSITE_CRC -checksum e5/historico_16m.csv e5/historico_def.csv
@@ -132,7 +147,7 @@ e5/historico_def.csv    COMPOSITE-CRC32C        5f0623f9
 ```
 
 * Apartado 3 
-    * La copia del paso 3 tiene el mismo resumen que historico_def.csv en el paso 1 ya que al no que se quería conservar el mismo tamaño de bloque que el original (16 MB) , se ha creado con la configuración por defecto que es de (128 MB)
+    * La copia del paso 3 tiene el mismo resumen que historico_def.csv en el paso 1 ya que al no indicar que se quería conservar el mismo tamaño de bloque que el original (16 MB) , se ha creado con la configuración por defecto que es de (128 MB)
 
 ```
 [xuedua076@cdh61-login5 ~]$ hdfs dfs -cp e5/historico_16m.csv e5/copia.csv
