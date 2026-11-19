@@ -66,28 +66,6 @@ hdfs://nameservice1  2.5 P  283.2 T      2.2 P   11%
 
 ## Paso 2 . Subir fichero y ver bloques
 
-```
-PRUEBA ELIMINAR LUEGO
-[xuedua076@cdh61-login1 ~]$ ls
-reservas_historico.csv  xera_historico.py
-```
-
-```
-PRUEBA ELIMINAR LUEGO
-
-[xuedua076@cdh61-login1 ~]$ head reservas_historico.csv
-reserva_id,noite,albergue_id,peregrino_id,camino,prezo
-1,2025-12-16,174,718235,Portugués,8
-2,2026-12-18,20,61910,Norte,0
-3,2021-11-18,35,172789,Fisterra,12
-4,2021-10-15,269,175864,Inglés,0
-5,2021-06-10,65,537529,Francés,12
-6,2021-02-14,162,565255,Fisterra,8
-7,2025-11-08,90,871236,Primitivo,8
-8,2021-03-01,186,857590,Norte,18
-9,2026-01-31,199,701231,Norte,15
-```
-
 * Cantidad de bloques en cada fichero 
     * En el caso de historico_def al tener la configuración por defecto cada bloque sería de 128 MB teniendo como resultado 1 solo bloque , esto debido a que el fichero ocupa solo 64 MB
     * Pero en el csv llamado historico_16m se ha creado con bloques de 16 MB cada uno , debido a esto dividiremos esa información en varios bloques (4 de 128 MB y el último ocupando 61 bytes)
